@@ -1,0 +1,123 @@
+<div class="container my-5">
+  <h1 class="mb-4 text-center">FastAPI Banking Portal</h1>
+
+  <!-- Global Feedback Message -->
+  @if (feedbackMessage) {
+    <div class="alert alert-info">{{ feedbackMessage }}</div>
+  }
+
+  <div class="row">
+    <!-- Left Column: Operations -->
+    <div class="col-md-8">
+      
+      <!-- User Creation -->
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">1. Create User & Bank Account</div>
+        <div class="card-body">
+          <form [formGroup]="userForm" (ngSubmit)="createUser()">
+            <div class="row mb-3">
+              <div class="col">
+                <input type="text" class="form-control" formControlName="full_name" placeholder="Full Name">
+              </div>
+              <div class="col">
+                <input type="email" class="form-control" formControlName="email" placeholder="Email">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid">Create User</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- IBAN Transfer -->
+      <div class="card mb-4">
+        <div class="card-header bg-success text-white">2. IBAN Transfer</div>
+        <div class="card-body">
+          <form [formGroup]="transferForm" (ngSubmit)="transferIban()">
+            <div class="row mb-3">
+              <div class="col"><input type="text" class="form-control" formControlName="sender_iban" placeholder="Sender IBAN"></div>
+              <div class="col"><input type="text" class="form-control" formControlName="receiver_iban" placeholder="Receiver IBAN"></div>
+              <div class="col"><input type="number" class="form-control" formControlName="amount" placeholder="Amount"></div>
+            </div>
+            <button type="submit" class="btn btn-success" [disabled]="transferForm.invalid">Transfer Funds</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Card Management -->
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-header bg-warning">Issue Card</div>
+            <div class="card-body">
+              <form [formGroup]="cardForm" (ngSubmit)="issueCard()">
+                <input type="number" class="form-control mb-3" formControlName="user_id" placeholder="User ID">
+                <button type="submit" class="btn btn-warning" [disabled]="cardForm.invalid">Issue Card</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-header bg-warning">Recharge Card</div>
+            <div class="card-body">
+              <form [formGroup]="rechargeForm" (ngSubmit)="rechargeCard()">
+                <input type="text" class="form-control mb-2" formControlName="card_number" placeholder="Card Number">
+                <input type="text" class="form-control mb-2" formControlName="source_iban" placeholder="Funding IBAN">
+                <input type="number" class="form-control mb-3" formControlName="amount" placeholder="Amount">
+                <button type="submit" class="btn btn-warning" [disabled]="rechargeForm.invalid">Recharge</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Payment -->
+      <div class="card mb-4">
+        <div class="card-header bg-danger text-white">Make Card Payment</div>
+        <div class="card-body">
+          <form [formGroup]="paymentForm" (ngSubmit)="makePayment()">
+            <div class="row mb-3">
+              <div class="col-md-4"><input type="text" class="form-control" formControlName="card_number" placeholder="Card Number"></div>
+              <div class="col-md-2"><input type="text" class="form-control" formControlName="cvv" placeholder="CVV"></div>
+              <div class="col-md-3"><input type="number" class="form-control" formControlName="expiry_month" placeholder="MM"></div>
+              <div class="col-md-3"><input type="number" class="form-control" formControlName="expiry_year" placeholder="YYYY"></div>
+            </div>
+            <div class="row mb-3">
+              <div class="col"><input type="text" class="form-control" formControlName="merchant_name" placeholder="Merchant"></div>
+              <div class="col"><input type="number" class="form-control" formControlName="amount" placeholder="Amount"></div>
+            </div>
+            <button type="submit" class="btn btn-danger" [disabled]="paymentForm.invalid">Process Payment</button>
+          </form>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Right Column: Audit Logs -->
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+          Transaction Audit Logs
+          <button class="btn btn-sm btn-outline-light" (click)="loadLogs()">Refresh</button>
+        </div>
+        <div class="card-body p-0" style="max-height: 800px; overflow-y: auto;">
+          <ul class="list-group list-group-flush">
+            @for (log of logs; track log.id) {
+              <li class="list-group-item">
+                <small class="text-muted d-block">{{ log.timestamp | date:'short' }}</small>
+                <strong>{{ log.tx_type }}</strong>
+                <span class="badge bg-secondary float-end">${{ log.amount }}</span>
+                <div class="small mt-1 text-truncate" title="{{ log.source_identifier }} ➔ {{ log.destination_identifier }}">
+                  {{ log.source_identifier }} ➔ {{ log.destination_identifier }}
+                </div>
+              </li>
+            } @empty {
+              <li class="list-group-item text-muted text-center py-4">No transactions found.</li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
